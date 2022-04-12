@@ -20,7 +20,7 @@ Dodatkowo należy pobrać i zainstalować następujące oprogramowanie:
 
 2. **Uruchomienie środowiska laboratoryjnego**
 
-Po instalacji wymaganego oprogramowania należy pobrać plik z definicją laboratoryjnego środowiska Ansible i zapisać go w lokalnym katalogu np. 'OpenSourceTech' na dysku C: (w sytemach MS Windows) lub w katalogu domowym użytkownika (w systemach Apple macOS i Linux):
+Po instalacji wymaganego oprogramowania należy pobrać plik z definicją laboratoryjnego środowiska CRC_Containers i zapisać go w lokalnym katalogu np. 'CRC2022-Konteneryzacja' na dysku C: (w sytemach MS Windows) lub w katalogu domowym użytkownika (w systemach Apple macOS i Linux):
 
 - https://github.com/piotrszewczuk/CRC_Containers/raw/main/Vagrantfile
 
