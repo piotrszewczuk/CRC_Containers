@@ -3,7 +3,7 @@
 Vagrant.configure("2") do |dockerConfig|
   #VM1: Docker Host 
   dockerConfig.vm.define "docker-host" do |docker|
-    docker.vm.box = "almalinux/8"
+    docker.vm.box = "rockylinux/8"
     docker.vm.hostname = "docker-host"
     docker.vm.network :private_network, ip: "192.168.60.20"
     docker.vm.network "forwarded_port", guest:80, host: 80
