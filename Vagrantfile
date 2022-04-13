@@ -8,6 +8,7 @@ Vagrant.configure("2") do |dockerConfig|
     docker.vm.network :private_network, ip: "192.168.60.20"
     docker.vm.network "forwarded_port", guest:80, host: 80
     docker.vm.network "forwarded_port", guest:443, host: 443
+    docker.vm.network "forwarded_port", guest:8080, host: 8080
     docker.vm.network "forwarded_port", guest:8888, host: 8888
     docker.ssh.insert_key = false
     docker.vm.provider "virtualbox" do |vDocker|
