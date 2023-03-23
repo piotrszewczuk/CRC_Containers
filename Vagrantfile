@@ -3,7 +3,7 @@
 Vagrant.configure("2") do |dockerConfig|
   #VM1: Docker Host 
   dockerConfig.vm.define "docker-host" do |docker|
-    docker.vm.box = "opensuse/Leap-15.4.x86_64"
+    docker.vm.box = "generic/ubuntu2204"
     docker.vm.hostname = "docker-host"
     docker.vm.network :private_network, ip: "192.168.60.20"
     docker.vm.network "forwarded_port", guest:80, host: 80
@@ -17,6 +17,8 @@ Vagrant.configure("2") do |dockerConfig|
       vDocker.customize ["modifyvm", :id, "--groups", "/CRC_Containers"]
     end
     docker.vm.provision "shell", inline: <<-SHELL
+      apt install -y chrony
+      systemctl enable --now chronyd
     SHELL
   end
 end
