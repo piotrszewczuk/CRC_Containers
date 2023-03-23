@@ -1,4 +1,4 @@
-# CRC 2022 - Konteneryzacja
+# CRC 2023 - Konteneryzacja
 
 ## Instrukcja uruchomienia środowiska laboratoryjnego
 
@@ -20,7 +20,7 @@ Dodatkowo należy pobrać i zainstalować następujące oprogramowanie:
 
 2. **Uruchomienie środowiska laboratoryjnego**
 
-Po instalacji wymaganego oprogramowania należy pobrać plik z definicją laboratoryjnego środowiska CRC_Containers i zapisać go w lokalnym katalogu np. 'CRC2022-Konteneryzacja' na dysku C: (w sytemach MS Windows) lub w katalogu domowym użytkownika (w systemach Apple macOS i Linux):
+Po instalacji wymaganego oprogramowania należy pobrać plik z definicją laboratoryjnego środowiska CRC_Containers i zapisać go w lokalnym katalogu np. 'CRC2023-Konteneryzacja' na dysku C: (w sytemach MS Windows) lub w katalogu domowym użytkownika (w systemach Apple macOS i Linux):
 
 - https://github.com/piotrszewczuk/CRC_Containers/raw/main/Vagrantfile
 
@@ -32,13 +32,13 @@ Po pobraniu pliku Vagrantfile należy uruchomić terminal i wykonać następują
 - w systemie MS Windows
   
   ```bash
-  cd c:\CRC2022-Konteneryzacja
+  cd c:\CRC2023-Konteneryzacja
   vagrant up
   ```
 - w systemach Apple macOS i Linux
   
   ```bash
-  cd ~/CRC2022-Konteneryzacja
+  cd ~/CRC2023-Konteneryzacja
   vagrant up
   ```
   
