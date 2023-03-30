@@ -41,4 +41,4 @@ Po zsynchronizowaniu rapozytorium należy uruchomić w terminalu następujące p
   
   Poprawne inicjalizowanie środowiska laboratoryjnego powinno zakończyć się uruchomieniem 4 maszyn wirtualnych widocznych w programie VirtualBox, tak jak jest to widoczne na poniższym zrzucie ekranu.
 
-![](https://github.com/piotrszewczuk/CRC_Containers/blob/main/Images/zz-crc-containers.png)
+![](https://github.com/piotrszewczuk/CRC_Containers/blob/main/Images/zz-crc-k8s.png)
