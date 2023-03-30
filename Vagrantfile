@@ -1,4 +1,4 @@
-
+### The Vagrantfile to automatically build a Kubernetes cluster
 require "yaml"
 settings = YAML.load_file "settings.yaml"
 
