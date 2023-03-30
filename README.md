@@ -20,14 +20,11 @@ Dodatkowo należy pobrać i zainstalować następujące oprogramowanie:
 
 2. **Uruchomienie środowiska laboratoryjnego**
 
-Po instalacji wymaganego oprogramowania należy pobrać plik z definicją laboratoryjnego środowiska CRC_Containers i zapisać go w lokalnym katalogu np. 'CRC2023-Konteneryzacja' na dysku C: (w sytemach MS Windows) lub w katalogu domowym użytkownika (w systemach Apple macOS i Linux):
+Po instalacji wymaganego oprogramowania należy należy utworzyć katalog np. "CRC2023-Konteneryzacja" w którym będzie znajdowała się konfiguracja środowiska laboratoryjnego, uruchomić terminal, przejść do utworzonego katalogu i za pomocą polecenia git zsynchronizować repozytorium wykonując następujące polecenie w terminalu:
 
-- https://github.com/piotrszewczuk/CRC_Containers/raw/main/Vagrantfile
-
-> **UWAGA !!!**
-> **Przy pobieraniu pliku "Vagrantfile" ważne jest, aby go zapisać w takiej postaci w jakiej jest udostępniony na stronie GitHub, bez żadnych rozszerzeń typu .txt, zmian itp. Najlepiej w przeglądarce internetowej, na wskazanym linku, wywołać menu kontekstowe i wybrać opcję "Zapisz link jako".**
-
-Po pobraniu pliku Vagrantfile należy uruchomić terminal i wykonać następujące polecenia: 
+> git clone https://github.com/piotrszewczuk/CRC_Containers.git
+ 
+Po zsynchronizowaniu rapozytorium należy uruchomić w terminalu następujące polecenia: 
 
 - w systemie MS Windows
   
@@ -42,6 +39,6 @@ Po pobraniu pliku Vagrantfile należy uruchomić terminal i wykonać następują
   vagrant up
   ```
   
-  Poprawne inicjalizowanie środowiska laboratoryjnego powinno zakończyć się uruchomieniem 4 maszyn wirtualnych widocznych w programie VirtualBox, tak jak na poniższym zrzucie ekranu.
+  Poprawne inicjalizowanie środowiska laboratoryjnego powinno zakończyć się uruchomieniem 4 maszyn wirtualnych widocznych w programie VirtualBox, tak jak jest to widoczne na poniższym zrzucie ekranu.
 
 ![](https://github.com/piotrszewczuk/CRC_Containers/blob/main/Images/zz-crc-containers.png)
