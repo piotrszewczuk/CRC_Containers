@@ -1,89 +1,123 @@
-# Vagranfile for CRC Kubernetes Lab
 
-Vagrant.configure("2") do |dockerConfig|
-  #VM1: Docker Host 
-  dockerConfig.vm.define "docker-host" do |docker|
-    docker.vm.box = "generic/ubuntu2204"
-    docker.vm.hostname = "docker-host"
-    docker.vm.network :private_network, ip: "192.168.60.20"
-    docker.vm.network "forwarded_port", guest:80, host: 80
-    docker.vm.network "forwarded_port", guest:443, host: 443
-    docker.vm.network "forwarded_port", guest:8888, host: 8888
-    docker.ssh.insert_key = false
-    docker.vm.provider "virtualbox" do |vDocker|
-      vDocker.name = "docker-host"
-      vDocker.customize ["modifyvm", :id, "--memory", 4096]
-      vDocker.customize ["modifyvm", :id, "--cpus", 2]
-      vDocker.customize ["modifyvm", :id, "--groups", "/CRC_Containers"]
-    end
-    docker.vm.provision "shell", inline: <<-SHELL
-      sudo apt-get install -y chrony
-      sudo systemctl enable --now chrony
-      # Docker Instalation
-      sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg lsb-release
-      sudo mkdir -m 0755 -p /etc/apt/keyrings && \
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-      echo \
-        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-        $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-      sudo apt-get update && sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-    SHELL
+require "yaml"
+settings = YAML.load_file "settings.yaml"
+
+IP_SECTIONS = settings["network"]["control_ip"].match(/^([0-9.]+\.)([^.]+)$/)
+# First 3 octets including the trailing dot:
+IP_NW = IP_SECTIONS.captures[0]
+# Last octet excluding all dots:
+IP_START = Integer(IP_SECTIONS.captures[1])
+NUM_WORKER_NODES = settings["nodes"]["workers"]["count"]
+
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", env: { "IP_NW" => IP_NW, "IP_START" => IP_START, "NUM_WORKER_NODES" => NUM_WORKER_NODES }, inline: <<-SHELL
+      apt-get update -y
+      echo "10.0.0.5 rancher" >> /etc/hosts
+      echo "$IP_NW$((IP_START)) master-node" >> /etc/hosts
+      for i in `seq 1 ${NUM_WORKER_NODES}`; do
+        echo "$IP_NW$((IP_START+i)) worker-node0${i}" >> /etc/hosts
+      done
+  SHELL
+
+  if `uname -m`.strip == "aarch64"
+    config.vm.box = settings["software"]["box"] + "-arm64"
+  else
+    config.vm.box = settings["software"]["box"]
   end
-end
+  config.vm.box_check_update = true
 
-#Vagrant.configure("2") do |node1Config|
-#  #VM2: node1
-#  node1Config.vm.define "k8s-node1" do |node1|
-#    node1.vm.box = "opensuse/Leap-15.4.x86_64"
-#    node1.vm.hostname = "k8s-node1"
-#    node1.vm.network "private_network", ip: "192.168.60.10"
-#    node1.ssh.insert_key = false
-#    node1.vm.provider "virtualbox" do |vNode1|
-#      vNode1.name = "k8s-node1"
-#      vNode1.customize ["modifyvm", :id, "--memory", 2048]
-#      vNode1.customize ["modifyvm", :id, "--cpus", 2]
-#      vNode1.customize ["modifyvm", :id, "--groups", "/CRC_Containers"]
-#    end
-#    node1.vm.provision "shell", inline: <<-SHELL
-#      zypper --non-interactive in curl 
-#    SHELL
-#  end
-#end
-#
-#Vagrant.configure("2") do |node2Config|
-#  #VM3: Node2
-#  node2Config.vm.define "k8s-node2" do |node2|
-#    node2.vm.box = "opensuse/Leap-15.4.x86_64"
-#    node2.vm.hostname = "k8s-node2"
-#    node2.vm.network :private_network, ip: "192.168.60.12"
-#    node2.ssh.insert_key = false
-#    node2.vm.provider "virtualbox" do |vNode2|
-#      vNode2.name = "k8s-node2"
-#      vNode2.customize ["modifyvm", :id, "--memory", 2048]
-#      vNode2.customize ["modifyvm", :id, "--cpus", 2]
-#      vNode2.customize ["modifyvm", :id, "--groups", "/CRC_Containers"]
-#    end
-#    node2.vm.provision "shell", inline: <<-SHELL
-#      zypper --non-interactive in curl
-#    SHELL
-#  end
-#end
-#
-#Vagrant.configure("2") do |node3Config|
-#  #VM4: Node3
-#  node3Config.vm.define "k8s-node3" do |node3|
-#    node3.vm.box = "opensuse/Leap-15.4.x86_64"
-#    node3.vm.hostname = "k8s-node3"
-#    node3.vm.network :private_network, ip: "192.168.60.14"
-#    node3.ssh.insert_key = false
-#    node3.vm.provider "virtualbox" do |vNode3|
-#      vNode3.name = "k8s-node3"
-#      vNode3.customize ["modifyvm", :id, "--memory", 2048]
-#      vNode3.customize ["modifyvm", :id, "--cpus", 2]
-#      vNode3.customize ["modifyvm", :id, "--groups", "/CRC_Containers"]
-#    end
-#    node3.vm.provision "shell", inline: <<-SHELL
-#      zypper --non-interactive in curl
-#    SHELL
-#  end
-#end
+  config.vm.define "rancher" do |rancher|
+    rancher.vm.hostname = "rancher-node"
+    rancher.vm.network "private_network", ip: "10.0.0.5"
+    rancher.vm.network "forwarded_port", guest:80, host: 80
+    rancher.vm.network "forwarded_port", guest:443, host: 443
+    rancher.vm.network "forwarded_port", guest:8888, host: 8888
+    #end
+    rancher.vm.provider "virtualbox" do |vb|
+	vb.name = "rancher"
+        vb.cpus = settings["nodes"]["rancher"]["cpu"]
+        vb.memory = settings["nodes"]["rancher"]["memory"]
+        if settings["cluster_name"] and settings["cluster_name"] != ""
+          vb.customize ["modifyvm", :id, "--groups", ("/" + settings["cluster_name"])]
+        end
+    end
+    rancher.vm.provision "shell",
+      env: {
+        "DNS_SERVERS" => settings["network"]["dns_servers"].join(" "),
+        "ENVIRONMENT" => settings["environment"],
+        "KUBERNETES_VERSION" => settings["software"]["kubernetes"],
+        "OS" => settings["software"]["os"]
+      },
+      path: "scripts/rancher.sh"
+  end
+
+  config.vm.define "master" do |master|
+    master.vm.hostname = "master-node"
+    master.vm.network "private_network", ip: settings["network"]["control_ip"]
+    if settings["shared_folders"]
+      settings["shared_folders"].each do |shared_folder|
+        master.vm.synced_folder shared_folder["host_path"], shared_folder["vm_path"]
+      end
+    end
+    master.vm.provider "virtualbox" do |vb|
+	vb.name = "k8s-master"
+        vb.cpus = settings["nodes"]["control"]["cpu"]
+        vb.memory = settings["nodes"]["control"]["memory"]
+        if settings["cluster_name"] and settings["cluster_name"] != ""
+          vb.customize ["modifyvm", :id, "--groups", ("/" + settings["cluster_name"])]
+        end
+    end
+    master.vm.provision "shell",
+      env: {
+        "DNS_SERVERS" => settings["network"]["dns_servers"].join(" "),
+        "ENVIRONMENT" => settings["environment"],
+        "KUBERNETES_VERSION" => settings["software"]["kubernetes"],
+        "OS" => settings["software"]["os"]
+      },
+      path: "scripts/common.sh"
+    master.vm.provision "shell",
+      env: {
+        "CALICO_VERSION" => settings["software"]["calico"],
+        "CONTROL_IP" => settings["network"]["control_ip"],
+        "POD_CIDR" => settings["network"]["pod_cidr"],
+        "SERVICE_CIDR" => settings["network"]["service_cidr"]
+      },
+      path: "scripts/master.sh"
+  end
+
+  (1..NUM_WORKER_NODES).each do |i|
+
+    config.vm.define "node0#{i}" do |node|
+      node.vm.hostname = "worker-node0#{i}"
+      node.vm.network "private_network", ip: IP_NW + "#{IP_START + i}"
+      if settings["shared_folders"]
+        settings["shared_folders"].each do |shared_folder|
+          node.vm.synced_folder shared_folder["host_path"], shared_folder["vm_path"]
+        end
+      end
+      node.vm.provider "virtualbox" do |vb|
+	  vb.name = "k8s-node0#{i}"
+          vb.cpus = settings["nodes"]["workers"]["cpu"]
+          vb.memory = settings["nodes"]["workers"]["memory"]
+          if settings["cluster_name"] and settings["cluster_name"] != ""
+            vb.customize ["modifyvm", :id, "--groups", ("/" + settings["cluster_name"])]
+          end
+      end
+      node.vm.provision "shell",
+        env: {
+          "DNS_SERVERS" => settings["network"]["dns_servers"].join(" "),
+          "ENVIRONMENT" => settings["environment"],
+          "KUBERNETES_VERSION" => settings["software"]["kubernetes"],
+          "OS" => settings["software"]["os"]
+        },
+        path: "scripts/common.sh"
+      node.vm.provision "shell", path: "scripts/node.sh"
+
+      # Only install the dashboard after provisioning the last worker (and when enabled).
+      if i == NUM_WORKER_NODES and settings["software"]["dashboard"] and settings["software"]["dashboard"] != ""
+        node.vm.provision "shell", path: "scripts/dashboard.sh"
+      end
+    end
+
+  end
+end 
